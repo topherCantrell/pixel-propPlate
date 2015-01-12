@@ -12,7 +12,7 @@ Here are the schematics from the "NeoPixelTest.spin" documentation
 ![](https://github.com/topherCantrell/propNeoPixel/blob/master/Art/Schematics.jpg)
 
 Here is the code on the Parallax Object Exchange:
-[](http://obex.parallax.com/object/774)
+[http://obex.parallax.com/object/774](http://obex.parallax.com/object/774)
 
 
 
