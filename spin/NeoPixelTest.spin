@@ -20,14 +20,16 @@ PUB Main : i
    
   NEO.start(@command)
 
-  PauseMSec(500)
+  PauseMSec(1000)
+
+  ' $00_GG_RR_BB
 
   ' Fill the grid with a green
   repeat i from 0 to 63
-    pixels[i] := $00_00_10_00
+    pixels[i] := $00_10_00_00
 
-  repeat i from 0 to 8
-    pixels[i*8 + i]   := $00_20_00_00  ' Green diagonal upper-left to bottom-right
+  repeat i from 0 to 7
+    pixels[i*8 + i]   := $00_00_20_00  ' Red diagonal upper-left to bottom-right
     pixels[i*8 +7 -i] := $00_00_00_20  ' Blue diagonal upper-right to bottom-left
   
   pin        := 0
