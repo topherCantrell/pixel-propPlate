@@ -1,0 +1,140 @@
+
+; The "Sequence.py" tool parses this script and produces the text of a 
+; SPIN data-section for pasting into the propeller code.
+
+; Write to palette N beginning at address X, M entries
+;        N XXXX M
+#Palette 0 00 4
+00_00_00
+0F_00_00
+00_0F_00
+00_00_0F
+
+; How to map text characters to palette entries
+#Chars ".ABC" 00 01 02 03
+
+; Repeat sets a count that is decremented at the following #Next
+; If the count is not zero, the script comes back to the top.
+; Otherwise it falls through.
+;
+; You can nest Repeat within Repeat to 8 levels.
+#Repeat 2
+
+; Basic draw commands. #1, #2, and #3
+#2
+ABCABCAB
+CABCABCA
+ABCABCAB
+CABCABCA
+ABCABCAB
+CABCABCA
+ABCABCAB
+CABCABCA
+
+; Delay (milliseconds)
+#Delay 500
+
+#2
+CABCABCA
+ABCABCAB
+CABCABCA
+ABCABCAB
+CABCABCA
+ABCABCAB
+CABCABCA
+ABCABCAB
+
+#Delay 500
+
+#Next
+
+
+#Repeat 4
+
+#2
+CCCCCCCC
+C......C
+C......C
+C......C
+C......C
+C......C
+C......C
+CCCCCCCC
+
+#Delay 250
+
+#2
+........
+.CCCCCC.
+.C....C.
+.C....C.
+.C....C.
+.C....C.
+.CCCCCC.
+........
+
+#Delay 250
+
+#2
+........
+........
+..CCCC..
+..C..C..
+..C..C..
+..CCCC..
+........
+........
+
+#Delay 250
+
+#2
+........
+........
+........
+...CC...
+...CC...
+........
+........
+........
+
+#Delay 250
+
+#2
+........
+........
+..CCCC..
+..C..C..
+..C..C..
+..CCCC..
+........
+........
+
+#Delay 250
+
+#2
+........
+.CCCCCC.
+.C....C.
+.C....C.
+.C....C.
+.C....C.
+.CCCCCC.
+........
+
+#Delay 250
+
+#Next
+
+#2
+CCCCCCCC
+C......C
+C......C
+C......C
+C......C
+C......C
+C......C
+CCCCCCCC
+
+#Delay 250
+
+#Restart
