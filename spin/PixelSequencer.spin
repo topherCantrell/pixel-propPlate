@@ -20,7 +20,7 @@ VAR
 OBJ
     NEO    : "NeoPixel" 
 
-pub playSequence(ptr) | og, c, w, n, addr, ct, p, i
+pub playSequence(ptr) | og, c, w, n, addr, ct, p, i,x , y, lastDraw, lastRowLen
 
   dira[0] := 1
   outa[0] := 0
@@ -33,8 +33,8 @@ pub playSequence(ptr) | og, c, w, n, addr, ct, p, i
   pin       := 0
   palette   := @pals
   rowOffset := 0
-  numRows   := 1
-  pixPerRow := 64    
+  numRows   := 8
+  pixPerRow := 8    
 
   command := 0
   NEO.start(@command)
@@ -47,9 +47,33 @@ pub playSequence(ptr) | og, c, w, n, addr, ct, p, i
     ptr := ptr + 4
     w := c>>24
 
-    if w==$FF
-      ' FF_FF_FF_FF (End)
-      return
+    
+    if w==$02
+      ' 02_00_XX_YY (one-byte-pixels)
+      ' nn_nn_oo_oo (n=number of bytes in data, o=row length)
+
+      x := (c>>8) & $FF
+      y := c & $FF        
+      c := long[ptr]
+      ptr := ptr + 4
+      n := (c>>16) & $FF_FF
+      lastRowLen := c & $FF_FF         
+      lastDraw := ptr
+
+      rowOffset :=  lastRowLen - 8      
+      buffer := ptr
+      command := w       
+      repeat while command<>0
+      
+      ptr := ptr + n
+      next
+
+
+    if w==$09
+      ' 09_00_00_NN (Use specified color palette) N=palette number
+      n := c & $FF
+      palette := @pals + n*1024
+    
 
     if w==$0A
       ' 0A_NN_XX_CC  N=palette number, X=Address, C=number of entries
@@ -62,15 +86,7 @@ pub playSequence(ptr) | og, c, w, n, addr, ct, p, i
         p := p + 4
         ptr := ptr + 4
       next
-
-    if w==$02
-      ' 02_00_00_00 (one-byte-pixels)
-      buffer := ptr
-      command := w
-      ptr := ptr + 64
-      repeat while command<>0
-      next
-
+      
     if w==$0B
       ' 0B_DD_DD_DD  D=millisecond delay
       PauseMSec(c & $FF_FF_FF)
@@ -95,7 +111,12 @@ pub playSequence(ptr) | og, c, w, n, addr, ct, p, i
         ptr := repeatAddr[repeatInd]
       else
         repeatInd := repeatInd - 1
-      next                                    
+      next
+
+      
+    if w==$FF
+      ' FF_FF_FF_FF (End)
+      return                                 
   
 PRI PauseMSec(Duration)
   waitcnt(((clkfreq / 1_000 * Duration - 3932) #> 381) + cnt)

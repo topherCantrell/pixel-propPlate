@@ -2,9 +2,9 @@
 ; The "Sequence.py" tool parses this script and produces the text of a 
 ; SPIN data-section for pasting into the propeller code.
 
-; Write to palette N beginning at address X, M entries
-;        N XXXX M
-#Palette 0 00 4
+; Write to palette N beginning at address X
+;        N XXXX
+#Palette 0 00
 00_00_00
 0F_00_00
 00_0F_00
@@ -12,6 +12,34 @@
 
 ; How to map text characters to palette entries
 #Chars ".ABC" 00 01 02 03
+
+#2 0 0
+.......A..............B..............C.......
+......A.A............B.B............C.C......
+.....A...A..........B...B..........C...C.....
+....A.....A........B.....B........C.....C....
+...A.......A......B.......B......C.......C...
+..A.........A....B.........B....C.........C..
+.A...........A..B...........B..C...........C.
+A.............AB.............BC.............C
+A.............AB.............BC.............C
+.A...........A..B...........B..C...........C.
+..A.........A....B.........B....C.........C..
+...A.......A......B.......B......C.......C...
+....A.....A........B.....B........C.....C....
+.....A...A..........B...B..........C...C.....
+......A.A............B.B............C.C......
+.......A..............B..............C.......
+#Delay 1000
+
+#DrawLast 5,0
+#Delay 1000
+
+#DrawLast 10,0
+#Delay 1000
+
+#DrawLast 10,10
+#Delay 1000
 
 ; Repeat sets a count that is decremented at the following #Next
 ; If the count is not zero, the script comes back to the top.

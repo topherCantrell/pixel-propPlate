@@ -30,7 +30,7 @@ charMap = {}
 
 x=0
 while x<len(lines):
-    line = lines[x]
+    line = lines[x]    
     x=x+1
     if line.startswith("#Palette"):
         words = line.split(" ")
@@ -60,6 +60,7 @@ while x<len(lines):
     
     if line.startswith("#2"):
         addLong(data,0x02000000)
+        addLong(data,(64<<16)+8)
         for i in xrange(8):
             for j in xrange(8):                
                 data.append(charMap[lines[x][j]])
@@ -84,7 +85,7 @@ while x<len(lines):
         addLong(data,0x0E000000)
         continue        
     
-    raise Exception("UNKNOWN '"+line+"'")     
+    raise Exception("UNKNOWN '"+line+"' on line "+str(x))     
         
 
 addLong(data,0xFFFFFFFF)
