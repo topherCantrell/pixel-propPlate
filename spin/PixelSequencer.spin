@@ -1,5 +1,9 @@
 VAR
 
+    ' If sequencer is running in a separate COG
+    long   PixelSequencerStack[64]
+    long   PixelSequencerCOG
+
     ' Param block for the driver COG
     '
     long   command    ' Command trigger -- write non-zero value
@@ -11,34 +15,50 @@ VAR
     long   pin        ' The pin number to send data over
         
     ' Palettes
-    long   pals[256*4]
+    long   pal[256]   ' Use for one-byte mode
 
+    ' Up to 8 nested repeat-counters
     long   repeatAddr[8]
     long   repeatCnt[8]
-    long   repeatInd
+    long   repeatInd            
 
 OBJ
     NEO    : "NeoPixel" 
 
-pub playSequence(ptr) | og, c, w, n, addr, ct, p, i,x , y, lastDraw, lastRowLen
+pub initSequencer
+  ' Currently there is no COG running
+  PixelSequencerCOG := -1
+  
+pub startSequencer(ptr,pn)
+  ' Only start one COG
+  if PixelSequencerCOG == -1
+    PixelSequencerCOG := cognew(sequencer(ptr,pn), @PixelSequencerStack)
 
-  dira[0] := 1
-  outa[0] := 0
+pub stopSequencer
+  ' Only stop if one is running
+  if PixelSequencerCOG > -1
+    cogstop(PixelSequencerCOG)
+    PixelSequencerCOG := -1
 
-  pals[0] := $00_00_00
-  pals[1] := $0F_00_00
-  pals[2] := $00_0F_00
-  pals[3] := $00_00_0F
+pub sequencer(ptr,pn) | og, c, w, n, addr, ct, p, i,x , y, lastDraw, lastRowLen
 
-  pin       := 0
-  palette   := @pals
+  dira[pn] := 1
+  outa[pn] := 0
+
+  pal[0] := $00_00_00
+  pal[1] := $0F_00_00
+  pal[2] := $00_0F_00
+  pal[3] := $00_00_0F
+
+  pin       := pn
+  palette   := @pal
   rowOffset := 0
   numRows   := 8
   pixPerRow := 8    
 
   command := 0
-  NEO.start(@command)
-
+  NEO.start(@command)         
+  
   og := ptr
   repeatInd := -1
 
@@ -61,26 +81,27 @@ pub playSequence(ptr) | og, c, w, n, addr, ct, p, i,x , y, lastDraw, lastRowLen
       lastDraw := ptr
 
       rowOffset :=  lastRowLen - 8      
-      buffer := ptr
-      command := w       
+      buffer := ptr + y*lastRowLen + x
+      command := 2       
       repeat while command<>0
       
       ptr := ptr + n
       next
 
+    if w==$20
+      ' 20_00_XX_YY (one-byte-pixels ... use last data)
+      x := (c>>8) & $FF
+      y := c & $FF
+      buffer := lastDraw + y*lastRowLen + x
+      command := 2       
+      repeat while command<>0   
 
-    if w==$09
-      ' 09_00_00_NN (Use specified color palette) N=palette number
-      n := c & $FF
-      palette := @pals + n*1024
-    
-
+        
     if w==$0A
-      ' 0A_NN_XX_CC  N=palette number, X=Address, C=number of entries
-      n := (c>>16) & $FF    ' Pal number
+      ' 0A_00_XX_CC  X=Address, C=number of entries
       addr := (c>>8) & $FF  ' Offset entry in pal
       ct := c & $FF         ' Number of entries
-      p := @pals + n*1024 + addr*4 
+      p := @pal + addr*4 
       repeat i from 1 to ct
         long[p] := long[ptr]
         p := p + 4

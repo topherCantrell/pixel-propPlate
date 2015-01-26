@@ -2,9 +2,9 @@
 ; The "Sequence.py" tool parses this script and produces the text of a 
 ; SPIN data-section for pasting into the propeller code.
 
-; Write to palette N beginning at address X
-;        N XXXX
-#Palette 0 00
+; Write to palette beginning at address X
+;        X
+#Palette 0
 00_00_00
 0F_00_00
 00_0F_00
@@ -13,7 +13,7 @@
 ; How to map text characters to palette entries
 #Chars ".ABC" 00 01 02 03
 
-#2 0 0
+#DrawBytes
 .......A..............B..............C.......
 ......A.A............B.B............C.C......
 .....A...A..........B...B..........C...C.....
@@ -32,13 +32,16 @@ A.............AB.............BC.............C
 .......A..............B..............C.......
 #Delay 1000
 
-#DrawLast 5,0
+#DrawLast 1 0
 #Delay 1000
 
-#DrawLast 10,0
+#DrawLast 2 0
 #Delay 1000
 
-#DrawLast 10,10
+#DrawLast 2 1
+#Delay 1000
+
+#DrawLast 2 2
 #Delay 1000
 
 ; Repeat sets a count that is decremented at the following #Next
@@ -49,7 +52,7 @@ A.............AB.............BC.............C
 #Repeat 2
 
 ; Basic draw commands. #1, #2, and #3
-#2
+#DrawBytes
 ABCABCAB
 CABCABCA
 ABCABCAB
@@ -62,7 +65,7 @@ CABCABCA
 ; Delay (milliseconds)
 #Delay 500
 
-#2
+#DrawBytes
 CABCABCA
 ABCABCAB
 CABCABCA
@@ -79,7 +82,7 @@ ABCABCAB
 
 #Repeat 4
 
-#2
+#DrawBytes
 CCCCCCCC
 C......C
 C......C
@@ -91,7 +94,7 @@ CCCCCCCC
 
 #Delay 250
 
-#2
+#DrawBytes
 ........
 .CCCCCC.
 .C....C.
@@ -103,7 +106,7 @@ CCCCCCCC
 
 #Delay 250
 
-#2
+#DrawBytes
 ........
 ........
 ..CCCC..
@@ -115,7 +118,7 @@ CCCCCCCC
 
 #Delay 250
 
-#2
+#DrawBytes
 ........
 ........
 ........
@@ -127,7 +130,7 @@ CCCCCCCC
 
 #Delay 250
 
-#2
+#DrawBytes
 ........
 ........
 ..CCCC..
@@ -139,7 +142,7 @@ CCCCCCCC
 
 #Delay 250
 
-#2
+#DrawBytes
 ........
 .CCCCCC.
 .C....C.
@@ -153,7 +156,7 @@ CCCCCCCC
 
 #Next
 
-#2
+#DrawBytes
 CCCCCCCC
 C......C
 C......C
