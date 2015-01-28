@@ -3,17 +3,7 @@ VAR
     ' If sequencer is running in a separate COG
     long   PixelSequencerStack[64]
     long   PixelSequencerCOG
-
-    ' Param block for the driver COG
-    '
-    long   command    ' Command trigger -- write non-zero value
-    long   buffer     ' Pointer to the pixel data buffer
-    long   pixPerRow  ' Number of pixels in a row
-    long   numRows    ' Number of rows
-    long   rowOffset  ' Memory offset between rows
-    long   palette    ' Color palette (some commands)
-    long   pin        ' The pin number to send data over
-        
+            
     ' Palettes
     long   pal[256]   ' Use for one-byte mode
 
@@ -23,16 +13,17 @@ VAR
     long   repeatInd            
 
 OBJ
-    NEO    : "NeoPixel" 
+    NEO_API : "NeoPixelAPI" 
 
-pub initSequencer
+pub init(neoParamsPtr)
   ' Currently there is no COG running
+  NEO_API.init(neoParamsPtr)
   PixelSequencerCOG := -1
   
-pub startSequencer(ptr,pn)
+pub startSequencer(ptr)
   ' Only start one COG
   if PixelSequencerCOG == -1
-    PixelSequencerCOG := cognew(sequencer(ptr,pn), @PixelSequencerStack)
+    PixelSequencerCOG := cognew(sequencer(ptr), @PixelSequencerStack)
 
 pub stopSequencer
   ' Only stop if one is running
@@ -40,25 +31,22 @@ pub stopSequencer
     cogstop(PixelSequencerCOG)
     PixelSequencerCOG := -1
 
-pub sequencer(ptr,pn) | og, c, w, n, addr, ct, p, i,x , y, lastDraw, lastRowLen
+pub sequencer(ptr) | og, c, w, n, addr, ct, p, i,x , y, lastDraw, lastRowLen
 
-  dira[pn] := 1
-  outa[pn] := 0
+  ' Running in a separate COG ... we need to init our I/O
+  dira[NEO_API.getOutputPin] := 1
+  outa[NEO_API.getOutputPin] := 0
 
   pal[0] := $00_00_00
   pal[1] := $0F_00_00
   pal[2] := $00_0F_00
   pal[3] := $00_00_0F
 
-  pin       := pn
-  palette   := @pal
-  rowOffset := 0
-  numRows   := 8
-  pixPerRow := 8    
-
-  command := 0
-  NEO.start(@command)         
-  
+  NEO_API.setPalette(@pal)
+  NEO_API.setRowOffset(0)
+  NEO_API.setNumberOfRows(8)
+  NEO_API.setPixelsPerRow(8)
+    
   og := ptr
   repeatInd := -1
 
@@ -80,10 +68,9 @@ pub sequencer(ptr,pn) | og, c, w, n, addr, ct, p, i,x , y, lastDraw, lastRowLen
       lastRowLen := c & $FF_FF         
       lastDraw := ptr
 
-      rowOffset :=  lastRowLen - 8      
-      buffer := ptr + y*lastRowLen + x
-      command := 2       
-      repeat while command<>0
+      NEO_API.setRowOffset(lastRowLen - 8)     
+      NEO_API.setBuffer(ptr + y*lastRowLen + x)
+      NEO_API.waitCommand(2)
       
       ptr := ptr + n
       next
@@ -92,9 +79,8 @@ pub sequencer(ptr,pn) | og, c, w, n, addr, ct, p, i,x , y, lastDraw, lastRowLen
       ' 20_00_XX_YY (one-byte-pixels ... use last data)
       x := (c>>8) & $FF
       y := c & $FF
-      buffer := lastDraw + y*lastRowLen + x
-      command := 2       
-      repeat while command<>0   
+      NEO_API.setBuffer(lastDraw + y*lastRowLen + x)
+      NEO_API.waitCommand(2)   
 
         
     if w==$0A
