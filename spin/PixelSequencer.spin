@@ -12,12 +12,7 @@ VAR
     long   repeatCnt[8]
     long   repeatInd
 
-    long v1x
-    long v1y
-    long v2x
-    long v2y
-    long v3x
-    long v3y
+    
 
 OBJ
     NEO_API : "NeoPixelAPI" 
