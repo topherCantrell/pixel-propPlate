@@ -4,20 +4,44 @@ VAR
     long   PixelSequencerStack[64]
     long   PixelSequencerCOG
             
-    ' Palettes
+    ' Palette
     long   pal[256]   ' Use for one-byte mode
 
     ' Up to 8 nested repeat-counters
     long   repeatAddr[8]
     long   repeatCnt[8]
-    long   repeatInd            
+    long   repeatInd
+
+    long v1x
+    long v1y
+    long v2x
+    long v2y
+    long v3x
+    long v3y
 
 OBJ
     NEO_API : "NeoPixelAPI" 
 
-pub init(neoParamsPtr)
+pub init(neoAPIptr, cols, rows, _v1x,_v1y, _v2x,_v2y, _v3x,_v3y)
   ' Currently there is no COG running
-  NEO_API.init(neoParamsPtr)
+  NEO_API.init(neoAPIptr)
+
+  v1x := _v1x
+  v1y := _v1y
+  v2x := _v2x
+  v2y := _v2y
+  v3x := _v3x
+  v3y := _v3y
+
+  if v1x>1
+    NEO_API.setNumberOfPlates(1)
+  else if v2x>1
+    NEO_API.setNumberOfPlates(2)
+  else if v3x>1
+    NEO_API.setNumberOfPlates(3)
+  else
+    NEO_API.setNumberOfPlates(4)  
+  
   PixelSequencerCOG := -1
   
 pub startSequencer(ptr)
@@ -31,8 +55,12 @@ pub stopSequencer
     cogstop(PixelSequencerCOG)
     PixelSequencerCOG := -1
 
+
+
+    
 pub sequencer(ptr) | og, c, w, n, addr, ct, p, i,x , y, lastDraw, lastRowLen
 
+  ' TODO the driver should be the only one who cares about the IO pin direction
   ' Running in a separate COG ... we need to init our I/O
   dira[NEO_API.getOutputPin] := 1
   outa[NEO_API.getOutputPin] := 0
@@ -42,10 +70,7 @@ pub sequencer(ptr) | og, c, w, n, addr, ct, p, i,x , y, lastDraw, lastRowLen
   pal[2] := $00_0F_00
   pal[3] := $00_00_0F
 
-  NEO_API.setPalette(@pal)
-  NEO_API.setRowOffset(0)
-  NEO_API.setNumberOfRows(8)
-  NEO_API.setPixelsPerRow(8)
+  NEO_API.setPalette(@pal)  
     
   og := ptr
   repeatInd := -1
@@ -68,7 +93,7 @@ pub sequencer(ptr) | og, c, w, n, addr, ct, p, i,x , y, lastDraw, lastRowLen
       lastRowLen := c & $FF_FF         
       lastDraw := ptr
 
-      NEO_API.setRowOffset(lastRowLen - 8)     
+      NEO_API.setRowOffset(lastRowLen - NEO_API.getPixelsPerRow)     
       NEO_API.setBuffer(ptr + y*lastRowLen + x)
       NEO_API.waitCommand(2)
       

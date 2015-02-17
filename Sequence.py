@@ -1,5 +1,5 @@
 
-with open("Sequence.txt") as f:
+with open("SeqA.txt") as f:
     raw = f.readlines()
     
 lines = []
