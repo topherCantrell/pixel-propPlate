@@ -23,7 +23,7 @@ con
 
 obj
 
-  NEO_API : "NeoPixelAPI"
+  NEO_API : "NeoPixelPlateAPI"
 
 var
   byte buf[64]

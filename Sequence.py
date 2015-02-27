@@ -1,16 +1,5 @@
 
-with open("SeqA.txt") as f:
-    raw = f.readlines()
-    
-lines = []
-for r in raw:
-    r = r.strip()
-    if ";" in r:
-        r = r[0:r.index(";")].strip()
-    if len(r)>0:
-        lines.append(r)
-        
-data = []
+
 
 def parseHex(value):
     value = value.replace("_","")
@@ -24,115 +13,212 @@ def addLong(data,value):
     
 def addWord(data,value):
     data.append((value>>0)  & 0xFF)
-    data.append((value>>8)  & 0xFF)    
+    data.append((value>>8)  & 0xFF)
     
-charMap = {}
+def parseParams(par):
+    ret = {}
+    pes = par.split(" ")
+    #print pes
+    for pe in pes:
+        if pe=="":
+            continue
+        p = pe.split("=")
+        ret[p[0]] = p[1]        
+    #print ret
+    return ret        
+    
+def printComment(m):
+    print "    ' "+m
+    pass
+    
+def printData(data):
+    pos = -1
+    for d in data:
+        pos = pos + 1
+        if pos==0:
+            s = "  byte "
+        s = s + "$"+ format(d,'02x')
+        if pos==15:
+            pos = -1        
+            print s
+            s = ""
+        else:
+            s = s + ","
+    if s!="":
+        print s[0:-1]  
 
-x=0
-while x<len(lines):
-    line = lines[x]    
-    x=x+1
-    if line.startswith("#Palette"):
-        words = line.split(" ")
-        addr = int(words[1])        
-        y = x
-        while y<len(lines) and not lines[y].startswith("#"):
-            y = y + 1        
-        cnt = y - x 
-                
-        # 0A_00_XX_CC  X=Address, C=number of entries       
-        data.append(cnt)   
-        data.append(addr)
-        data.append(0)  
-        data.append(0x0A)    
-        for y in xrange(cnt):
-            addLong(data,parseHex(lines[x]))
-            x=x+1
-        continue
     
-    if line.startswith("#Chars"):
-        i = line.index('"')
-        j = line.index('"',i+1)
-        cs = line[i+1:j]
-        m = line[j+1:].strip().split(" ")
-        charMap = {}
-        for z in xrange(len(cs)):
-            charMap[cs[z]] = int(m[z],16)
-        continue   
+def parseScript(raw):
     
-    if line.startswith("#DrawBytes"):        
-        ox = 0
-        oy = 0        
-        words = line.split(" ")[1:]
-        if len(words)>0:
-            ox = int(words[0])
-            oy = int(words[1])
+    lines = []
+    for r in raw:
+        r = r.strip()
+        if ";" in r:
+            r = r[0:r.index(";")].strip()
+        if len(r)>0:
+            lines.append(r)
             
-        addLong(data,0x02000000 | (ox<<8) | oy)
+    data = []
         
-        y = x
-        while y<len(lines) and not lines[y].startswith("#"):
-            y = y + 1        
-        cnt = y - x        
+    charMap = {}
+    
+    x=0
+    while x<len(lines):
+        line = lines[x]    
+        x=x+1
+        if line.startswith("#Palette"):
+            printComment(line)
+            params = parseParams(line[8:]) 
+            addr = 0
+            if "start" in params:
+                addr = int(params["start"])
+            y = x
+            while y<len(lines) and not lines[y].startswith("#"):
+                y = y + 1        
+            cnt = y - x 
+                    
+            # 0A_00_XX_CC  X=Address, C=number of entries      
+            printData([cnt,addr,0,0x0A])
+             
+            data = []            
+            for y in xrange(cnt):
+                addLong(data,parseHex(lines[x]))
+                x=x+1
+                
+            printData(data)
+            
+            continue
         
-        ln = len(lines[x])                
-        addLong(data, ((cnt*ln)<<16) | ln  )
+        if line.startswith("#Chars"):
+            printComment(line)
+            params = parseParams(line[6:]) 
+            
+            chars = params["chars"]
+            values = params["values"].split(",")            
+            
+            for z in xrange(len(chars)):
+                charMap[chars[z]] = int(values[z],16)            
+            
+            continue   
         
-        for i in xrange(cnt):
-            for j in xrange(ln):                
-                data.append(charMap[lines[x][j]])
-            x = x + 1 
-        continue
-    
-    if line.startswith("#DrawLast"):
-        ox = 0
-        oy = 0        
-        words = line.split(" ")[1:]
-        if len(words)>0:
-            ox = int(words[0])
-            oy = int(words[1])            
-        addLong(data,0x20000000 | (ox<<8) | oy)
-        continue        
-    
-    if line.startswith("#Delay"):
-        dv = int(line[6:].strip())
-        addLong(data,dv | 0x0B000000)
-        continue
-    
-    if line.startswith("#Restart"):
-        addLong(data,0x0C000000)
-        continue
-    
-    if line.startswith("#Repeat"):
-        words = line.split(" ")
-        addLong(data,0x0D000000 | int(words[1]))
-        continue
-    
-    if line.startswith("#Next"):
-        addLong(data,0x0E000000)
-        continue        
-    
-    raise Exception("UNKNOWN '"+line+"' on line "+str(x))     
+        if line.startswith("#DrawBytes"):        
+            printComment(line)
+            params = parseParams(line[10:])             
+            ox = 0
+            oy = 0        
+            
+            if "x" in params:
+                ox = int(params["x"])
+            if "y" in params:
+                oy = int(params["y"])            
+                       
+            pixdat = []
+            y = x
+            while y<len(lines) and not lines[y].startswith("#"):
+                pixdat.append(lines[y].replace(' ',''))
+                y = y + 1        
+            height = y - x        
+            
+            width = len(pixdat[0])     
+            
+            # 02_00_XX_YY   one-byte-pixels, X=xOfs, Y=yOfs
+            # ww_ww_hh_hh   w=dataWidth, h=dataHeight
+            printData([oy,ox,0,0x02])
+            printData([width&255, (width>>8)&255, height&255, (height>>8)&255])
+            
+            data = [] 
+            for i in xrange(height):
+                for j in xrange(width):                
+                    data.append(charMap[pixdat[i][j]])
+                x = x + 1
+                
+            printData(data)
+             
+            continue
         
-
-addLong(data,0xFFFFFFFF)
-
-pos = -1
-s = ""
-for d in data:
-    pos = pos + 1
-    if pos==0:
-        s = "  byte "
-    s = s + "$"+ format(d,'02x')
-    if pos==15:
-        pos = -1        
+        if line.startswith("#DrawLast"):
+            printComment(line)
+            params = parseParams(line[10:])             
+            ox = 0
+            oy = 0        
+            
+            if "x" in params:
+                ox = int(params["x"])
+            if "y" in params:
+                oy = int(params["y"])
+            
+            # 20_00_XX_YY (one-byte-pixels ... use last data)     
+            printData([oy,ox,0,0x20])
+                
+            continue        
+        
+        if line.startswith("#Delay"):
+            printComment(line)
+            params = parseParams(line[6:])
+            
+            dv = int(params["ms"])
+            
+            # 0B_DD_DD_DD  D=millisecond delay
+            printData([dv&255,(dv>>8)&255,(dv>>16)&255,0x0B])            
+            
+            continue
+        
+        if line.startswith("#Restart"):
+            printComment(line)
+            
+            # 0C_00_00_00 (Restart)
+            printData([0,0,0,0x0C])
+            
+            continue
+        
+        if line.startswith("#Repeat"):
+            printComment(line)
+            params = parseParams(line[7:])
+            cnt = int(params["count"])
+            
+            # 0D_CC_CC_CC (Repeat) C=Count
+            printData([cnt&255,(cnt>>8)&255,(cnt>>16)&255,0x0B])            
+            
+            continue
+        
+        if line.startswith("#Next"):
+            printComment(line)
+            
+            #' 0E_00_00_00 (Next)
+            printData([0,0,0,0x0E])
+            
+            continue        
+        
+        raise Exception("UNKNOWN '"+line+"' on line "+str(x))     
+            
+    
+    printComment("END")
+    printData([0xFF,0xFF,0xFF,0xFF])
+    
+if __name__ == "__main__":
+    
+    with open("SeqA.txt") as f:
+        raw = f.readlines()
+    
+    parseScript(raw)
+   
+    """    
+    pos = -1
+    s = ""
+    for d in data:
+        pos = pos + 1
+        if pos==0:
+            s = "  byte "
+        s = s + "$"+ format(d,'02x')
+        if pos==15:
+            pos = -1        
+            print s
+        else:
+            s = s + ","
+            
+    if len(s)>0:
+        if s[-1]==',':
+            s = s[0:-1]
         print s
-    else:
-        s = s + ","
-        
-if len(s)>0:
-    if s[-1]==',':
-        s = s[0:-1]
-    print s
-    
+    """
            

@@ -10,33 +10,15 @@ VAR
     ' Up to 8 nested repeat-counters
     long   repeatAddr[8]
     long   repeatCnt[8]
-    long   repeatInd
-
-    
+    long   repeatInd             
 
 OBJ
-    NEO_API : "NeoPixelAPI" 
+    NEO_API : "NeoPixelPlateAPI" 
 
-pub init(neoAPIptr, cols, rows, _v1x,_v1y, _v2x,_v2y, _v3x,_v3y)
+pub init(neoAPIptr)
   ' Currently there is no COG running
   NEO_API.init(neoAPIptr)
-
-  v1x := _v1x
-  v1y := _v1y
-  v2x := _v2x
-  v2y := _v2y
-  v3x := _v3x
-  v3y := _v3y
-
-  if v1x>1
-    NEO_API.setNumberOfPlates(1)
-  else if v2x>1
-    NEO_API.setNumberOfPlates(2)
-  else if v3x>1
-    NEO_API.setNumberOfPlates(3)
-  else
-    NEO_API.setNumberOfPlates(4)  
-  
+    
   PixelSequencerCOG := -1
   
 pub startSequencer(ptr)
@@ -53,13 +35,12 @@ pub stopSequencer
 
 
     
-pub sequencer(ptr) | og, c, w, n, addr, ct, p, i,x , y, lastDraw, lastRowLen
+pub sequencer(ptr) | og, w, cmd, addr, ct, p, i,x , y, lastDraw, lastWidth, lastHeight
 
-  ' TODO the driver should be the only one who cares about the IO pin direction
-  ' Running in a separate COG ... we need to init our I/O
-  dira[NEO_API.getOutputPin] := 1
-  outa[NEO_API.getOutputPin] := 0
+  ' TODO
+  ' Commands for 4-byte-pixel mode. (Not supporting 4-bit-pixel mode in sequencer)
 
+  ' Just a default 4-color palette
   pal[0] := $00_00_00
   pal[1] := $0F_00_00
   pal[2] := $00_0F_00
@@ -71,68 +52,77 @@ pub sequencer(ptr) | og, c, w, n, addr, ct, p, i,x , y, lastDraw, lastRowLen
   repeatInd := -1
 
   repeat  
-    c := long[ptr]
+    w := long[ptr]
     ptr := ptr + 4
-    w := c>>24
+    cmd := w>>24
 
     
-    if w==$02
-      ' 02_00_XX_YY (one-byte-pixels)
-      ' nn_nn_oo_oo (n=number of bytes in data, o=row length)
-
-      x := (c>>8) & $FF
-      y := c & $FF        
-      c := long[ptr]
+    if cmd==$02
+      ' 02_00_XX_YY   one-byte-pixels, X=xOfs, Y=yOfs
+      ' ww_ww_hh_hh   w=dataWidth, h=dataHeight
+      '
+      x := (w>>8) & $FF
+      y := w & $FF        
+      w := long[ptr]                                                    
       ptr := ptr + 4
-      n := (c>>16) & $FF_FF
-      lastRowLen := c & $FF_FF         
+      lastHeight := w & $FF_FF
+      lastWidth := (w>>16) & $FF_FF         
       lastDraw := ptr
 
-      NEO_API.setRowOffset(lastRowLen - NEO_API.getPixelsPerRow)     
-      NEO_API.setBuffer(ptr + y*lastRowLen + x)
-      NEO_API.waitCommand(2)
+      NEO_API.waitRenderRaster(2, ptr, lastWidth, lastHeight, x, y)
       
-      ptr := ptr + n
+      ptr := ptr + lastHeight*lastWidth
       next
 
-    if w==$20
+      
+    if cmd==$20
       ' 20_00_XX_YY (one-byte-pixels ... use last data)
-      x := (c>>8) & $FF
-      y := c & $FF
-      NEO_API.setBuffer(lastDraw + y*lastRowLen + x)
-      NEO_API.waitCommand(2)   
+      '
+      x := (w>>8) & $FF
+      y := w & $FF
+      NEO_API.waitRenderRaster(2, lastDraw, lastWidth, lastHeight, x, y)
 
         
-    if w==$0A
+    if cmd==$0A
       ' 0A_00_XX_CC  X=Address, C=number of entries
-      addr := (c>>8) & $FF  ' Offset entry in pal
-      ct := c & $FF         ' Number of entries
+      '
+      addr := (w>>8) & $FF  ' Offset entry in pal
+      ct := w & $FF         ' Number of entries
       p := @pal + addr*4 
       repeat i from 1 to ct
         long[p] := long[ptr]
         p := p + 4
         ptr := ptr + 4
       next
-      
-    if w==$0B
-      ' 0B_DD_DD_DD  D=millisecond delay
-      PauseMSec(c & $FF_FF_FF)
-      next
 
-    if w==$0C
+      
+    if cmd==$0B
+      ' 0B_DD_DD_DD  D=millisecond delay
+      '
+      PauseMSec(w & $FF_FF_FF)
+      next
+      
+
+    if cmd==$0C
       ' 0C_00_00_00 (Restart)
+      '
+      repeatInd := -1
       ptr := og
       next
+      
 
-    if w==$0D
+    if cmd==$0D
       ' 0D_CC_CC_CC (Repeat) C=Count
+      '
       repeatInd := repeatInd + 1
       repeatAddr[repeatInd] := ptr
-      repeatCnt[repeatInd] := c & $FF_FF_FF
+      repeatCnt[repeatInd] := w & $FF_FF_FF
       next
+      
 
-    if w==$0E
+    if cmd==$0E
       ' 0E_00_00_00 (Next)
+      '
       repeatCnt[repeatInd] := repeatCnt[repeatInd] -1
       if repeatCnt[repeatInd] > 0
         ptr := repeatAddr[repeatInd]
@@ -141,7 +131,7 @@ pub sequencer(ptr) | og, c, w, n, addr, ct, p, i,x , y, lastDraw, lastRowLen
       next
 
       
-    if w==$FF
+    if cmd==$FF
       ' FF_FF_FF_FF (End)
       return                                 
   

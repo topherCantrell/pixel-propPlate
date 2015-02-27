@@ -11,17 +11,20 @@ var
   ' long   p_numPlates      ' +24 Number of plates to update
   ' long   p_rowOffset      ' +28 Memory offset between rows
   ' long   p_plateOffset[3] ' +32 Up to four plates (change if you need more)
+  '
+  ' long   v1x, v1y, v2x, v2y, v3x, v3y
 
 CON
   ofs_command     = 0
-  ofs_palette     = ofs_command   + 4
-  ofs_buffer      = ofs_palette   + 4
-  ofs_pin         = ofs_buffer    + 4
-  ofs_pixPerRow   = ofs_pin       + 4
-  ofs_numRows     = ofs_pixPerRow + 4
-  ofs_numPlates   = ofs_numRows   + 4
-  ofs_rowOffset   = ofs_numPlates + 4
-  ofs_plateOffset = ofs_rowOffset + 4
+  ofs_palette     = ofs_command     + 4
+  ofs_buffer      = ofs_palette     + 4
+  ofs_pin         = ofs_buffer      + 4
+  ofs_pixPerRow   = ofs_pin         + 4
+  ofs_numRows     = ofs_pixPerRow   + 4
+  ofs_numPlates   = ofs_numRows     + 4
+  ofs_rowOffset   = ofs_numPlates   + 4
+  ofs_plateOffset = ofs_rowOffset   + 4
+  ofs_geometry    = ofs_plateOffset + 4*3
   
 PUB init(_self)
   self := _self
@@ -69,10 +72,29 @@ PUB getRowOffset
 PUB setPlateOffset(i,v)
   long[self+ofs_plateOffset+i*4] := v
 PUB getPlateOffset(i)
-  return long[self+ofs_plateOffset+i*4]
-
-  
+  return long[self+ofs_plateOffset+i*4]  
 
 PUB waitCommand(v)
   long[self+ofs_command] :=v
   repeat while long[self]<>0
+
+PUB waitRenderRaster(mode, pixBuf, width, height, xofs, yofs) | p, x,y
+  ' Here is where we do the math for the row and plate offsets to map over
+  ' the given dot matrix.
+
+  ' TODO this assumes mode 2.
+
+  ' x and y factors from the plate layout
+  repeat p from 0 to (getNumberOfPlates - 2)
+    x := long[self+ofs_geometry+p*8]
+    y := long[self+ofs_geometry+p*8+4]
+    setPlateOffset(p, x+y*width) ' The offset depends on the width of the data   
+
+  ' The row offset depends on the width of the data
+  setRowOffset(width-getPixelsPerRow)
+
+  ' Add any simple translations
+  setBuffer(pixBuf + yofs*width + xofs)
+  
+  waitCommand(mode)
+  
