@@ -1,191 +1,87 @@
 
-; The "Sequence.py" tool parses this script and produces the text of a 
-; SPIN data-section for pasting into the propeller code.
-
-; Write to palette beginning at address X
-;        X
-#Palette 0
+#Palette start=0
 00_00_00
 0F_00_00
 00_0F_00
 00_00_0F
+00_0F_0F
+0F_0F_00
+02_00_02
+40_40_40
 
-; How to map text characters to palette entries
-#Chars ".ABC" 00 01 02 03
+#Chars chars=.ABCDE+X values=00,01,02,03,04,05,06,07
 
-#DrawBytes
-................
-.AAAAAA..BBBBBB.
-.A....A..B....B.
-.A....A..B....B.
-.A....A..B....B.
-.AAAAAA..BBBBBB.
-................
-................
-.CCCCCC..ABCABC.
-.A....C..B....B.
-.A....C..B....B.
-.A....C..B....B.
-.AAAAAC..ABCABC.
-................
+; 5x5 plates
 
-#Delay 10000
+#DrawBytes x=0 y=0
 
+A......B B......A A......B B......A A......B
+..+++X.. ..XXXX.. ..XXXX.. ..X++X.. ..XXXX..
+..+..X.. ..+..X.. ..+..X.. ..X..X.. ..X..+..
+..+++X.. ..XXXX.. ..XXXX.. ..XXXX.. ..XXXX..
+..+..X.. ..X..+.. ..+..X.. ..+..X.. ..+..X..
+..+++X.. ..XXXX.. ..XXXX.. ..+++X.. ..XXXX..
+........ ........ ........ ........ ........
+E......D D......E E......D E......D E......D
 
+E......D D......E E......D E......D E......D
+..XXXX.. ..XXXX.. ..XXXX.. ..XXXX.. ..XXXX..
+..X..+.. ..+..X.. ..X..X.. ..X..X.. ..X..X..
+..XXXX.. ..+++X.. ..XXXX.. ..XXXX.. ..XXXX..
+..X..X.. ..+..X.. ..X..X.. ..+..X.. ..X..X..
+..XXXX.. ..+++X.. ..XXXX.. ..+++X.. ..X..X..
+........ ........ ........ ........ ........
+A......B B......A A......B B......A A......B
 
-#DrawBytes
-.......A..............B..............C.......
-......A.A............B.B............C.C......
-.....A...A..........B...B..........C...C.....
-....A.....A........B.....B........C.....C....
-...A.......A......B.......B......C.......C...
-..A.........A....B.........B....C.........C..
-.A...........A..B...........B..C...........C.
-A.............AB.............BC.............C
-A.............AB.............BC.............C
-.A...........A..B...........B..C...........C.
-..A.........A....B.........B....C.........C..
-...A.......A......B.......B......C.......C...
-....A.....A........B.....B........C.....C....
-.....A...A..........B...B..........C...C.....
-......A.A............B.B............C.C......
-.......A..............B..............C.......
-#Delay 1000
+A......B B......A A......B B......A A......B
+..X+++.. ..XXXX.. ..+++X.. ..XXXX.. ..XXXX..
+..X..+.. ..X..+.. ..+..X.. ..X..+.. ..X..+..
+..XXXX.. ..X+++.. ..XXXX.. ..XXXX.. ..XXXX..
+..X..X.. ..X..+.. ..X..X.. ..X..+.. ..X..+..
+..XXXX.. ..XXXX.. ..XXXX.. ..XXXX.. ..X+++..
+........ ........ ........ ........ ........
+E......D D......E E......D E......D E......D
 
-#DrawLast 1 0
-#Delay 1000
+E......D D......E E......D E......D E......D
+X..XXXX. X..+++X. X..XXXX. X..XXXX. X..X++X.
+X..X..X. X..+..X. X..+..X. X..+..X. X..X..X.
+X..X++X. X..+++X. X..XXXX. X..XXXX. X..XXXX.
+X..X..X. X..+..X. X..X..+. X..+..X. X..+..X.
+X..XXXX. X..+++X. X..XXXX. X..XXXX. X..+++X.
+........ ........ ........ ........ ........
+A......B B......A A......B B......A A......B
 
-#DrawLast 2 0
-#Delay 1000
+A......B B......A A......B B......A A......B
+X..XXXX. X..XXXX. X..XXXX. X..XXXX. X..XXXX.
+X..X..+. X..X..+. X..+..X. X..X..X. X..X..X.
+X..XXXX. X..XXXX. X..+++X. X..XXXX. X..XXXX.
+X..+..X. X..X..X. X..+..X. X..X..X. X..+..X.
+X..XXXX. X..XXXX. X..+++X. X..XXXX. X..+++X.
+........ ........ ........ ........ ........
+E......D D......E E......D E......D E......D
 
-#DrawLast 2 1
-#Delay 1000
+#Delay ms=1000
 
-#DrawLast 2 2
-#Delay 1000
+#DrawLast x=1 y=1
+#Delay ms=1000
 
-; Repeat sets a count that is decremented at the following #Next
-; If the count is not zero, the script comes back to the top.
-; Otherwise it falls through.
-;
-; You can nest Repeat within Repeat to 8 levels.
-#Repeat 2
+#DrawLast x=2 y=2
+#Delay ms=1000
 
-; Basic draw commands. #1, #2, and #3
-#DrawBytes
-ABCABCAB
-CABCABCA
-ABCABCAB
-CABCABCA
-ABCABCAB
-CABCABCA
-ABCABCAB
-CABCABCA
+#DrawLast x=3 y=3
+#Delay ms=1000
 
-; Delay (milliseconds)
-#Delay 500
+#DrawLast x=4 y=4
+#Delay ms=1000
 
-#DrawBytes
-CABCABCA
-ABCABCAB
-CABCABCA
-ABCABCAB
-CABCABCA
-ABCABCAB
-CABCABCA
-ABCABCAB
+#DrawLast x=5 y=5
+#Delay ms=1000
 
-#Delay 500
+#DrawLast x=6 y=6
+#Delay ms=1000
 
-#Next
+#DrawLast x=7 y=7
+#Delay ms=1000
 
-
-#Repeat 4
-
-#DrawBytes
-CCCCCCCC
-C......C
-C......C
-C......C
-C......C
-C......C
-C......C
-CCCCCCCC
-
-#Delay 250
-
-#DrawBytes
-........
-.CCCCCC.
-.C....C.
-.C....C.
-.C....C.
-.C....C.
-.CCCCCC.
-........
-
-#Delay 250
-
-#DrawBytes
-........
-........
-..CCCC..
-..C..C..
-..C..C..
-..CCCC..
-........
-........
-
-#Delay 250
-
-#DrawBytes
-........
-........
-........
-...CC...
-...CC...
-........
-........
-........
-
-#Delay 250
-
-#DrawBytes
-........
-........
-..CCCC..
-..C..C..
-..C..C..
-..CCCC..
-........
-........
-
-#Delay 250
-
-#DrawBytes
-........
-.CCCCCC.
-.C....C.
-.C....C.
-.C....C.
-.C....C.
-.CCCCCC.
-........
-
-#Delay 250
-
-#Next
-
-#DrawBytes
-CCCCCCCC
-C......C
-C......C
-C......C
-C......C
-C......C
-C......C
-CCCCCCCC
-
-#Delay 250
-
-#Restart
+#DrawLast x=8 y=8
+#Delay ms=1000

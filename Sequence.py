@@ -1,6 +1,4 @@
 
-
-
 def parseHex(value):
     value = value.replace("_","")
     return int(value,16)
@@ -197,28 +195,8 @@ def parseScript(raw):
     
 if __name__ == "__main__":
     
-    with open("SeqA.txt") as f:
+    with open("Sequence.txt") as f:
         raw = f.readlines()
     
     parseScript(raw)
-   
-    """    
-    pos = -1
-    s = ""
-    for d in data:
-        pos = pos + 1
-        if pos==0:
-            s = "  byte "
-        s = s + "$"+ format(d,'02x')
-        if pos==15:
-            pos = -1        
-            print s
-        else:
-            s = s + ","
-            
-    if len(s)>0:
-        if s[-1]==',':
-            s = s[0:-1]
-        print s
-    """
-           
+                  

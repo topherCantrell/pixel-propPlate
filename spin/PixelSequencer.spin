@@ -13,13 +13,14 @@ VAR
     long   repeatInd             
 
 OBJ
-    NEO_API : "NeoPixelPlateAPI" 
+    'NEO_API : "NeoPixelPlateAPI"
+    NEO_API  : "MultiNeoPixelPlateAPI"    
 
-pub init(neoAPIptr)
+pub init(neoAPIptr_1, neoAPIptr_2)
   ' Currently there is no COG running
-  NEO_API.init(neoAPIptr)
+  NEO_API.init(neoAPIptr_1, neoAPIptr_2)
     
-  PixelSequencerCOG := -1
+  PixelSequencerCOG := -1    
   
 pub startSequencer(ptr)
   ' Only start one COG

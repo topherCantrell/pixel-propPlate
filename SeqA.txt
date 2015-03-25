@@ -11,9 +11,9 @@
 
 #Chars chars=.ABCDE+X values=00,01,02,03,04,05,06,07
 
-; Five by Five
+; 5x5 plates
 
-#DrawBytes x=8 y=8
+#DrawBytes x=0 y=0
 
 A......B B......A A......B B......A A......B
 ..+++X.. ..XXXX.. ..XXXX.. ..X++X.. ..XXXX..

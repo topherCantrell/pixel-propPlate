@@ -82,7 +82,8 @@ PUB waitCommand(v)
   long[self+ofs_command] :=v
   repeat while long[self]<>0
 
-PUB waitRenderRaster(mode, pixBuf, width, height, xofs, yofs) | p, x,y
+PUB renderRaster(mode, pixBuf, width, height, xofs, yofs) | p, x,y
+
   ' Here is where we do the math for the row and plate offsets to map over
   ' the given dot matrix.
 
@@ -102,6 +103,9 @@ PUB waitRenderRaster(mode, pixBuf, width, height, xofs, yofs) | p, x,y
 
   ' Add any simple translations
   setBuffer(pixBuf + yofs*width + xofs)
+
+  setCommand(mode)  
   
-  waitCommand(mode)
-  
+PUB waitRenderRaster(mode, pixBuf, width, height, xofs, yofs) | p, x,y
+  renderRaster(mode,pixBuf,width,height,xofs,yofs)
+  repeat while getCommand<>0
