@@ -12,7 +12,10 @@ var
   ' long   p_rowOffset      ' +28 Memory offset between rows
   ' long   p_plateOffset[3] ' +32 Up to four plates (change if you need more)
   '
-  ' long   v1x, v1y, v2x, v2y, v3x, v3y
+  ' long   ix               ' +44 First plate's x-offset in the buffer
+  ' long   iy               ' +48 First plate's y-offset in the buffer
+  '
+  ' long   v1x, v1y, v2x, v2y, v3x, v3y  ' +52
 
 CON
   ofs_command     = 0
@@ -24,7 +27,8 @@ CON
   ofs_numPlates   = ofs_numRows     + 4
   ofs_rowOffset   = ofs_numPlates   + 4
   ofs_plateOffset = ofs_rowOffset   + 4
-  ofs_geometry    = ofs_plateOffset + 4*3
+  ofs_ixiy        = ofs_plateOffset + 4*3
+  ofs_geometry    = ofs_ixiy        + 4*2
   
 PUB init(_self)
   self := _self
@@ -83,6 +87,9 @@ PUB waitRenderRaster(mode, pixBuf, width, height, xofs, yofs) | p, x,y
   ' the given dot matrix.
 
   ' TODO this assumes mode 2.
+
+  xofs := xofs + long[self+ofs_ixiy]
+  yofs := yofs + long[self+ofs_ixiy+4]
 
   ' x and y factors from the plate layout
   repeat p from 0 to (getNumberOfPlates - 2)
