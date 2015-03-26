@@ -85,3 +85,35 @@ E......D D......E E......D E......D E......D
 
 #DrawLast x=8 y=8
 #Delay ms=1000
+
+
+
+
+#Palette start=0
+00_00_00_00
+00_FF_10_FF
+
+#Chars chars=.ABCDE+X values=00,01,02,03,04,05,06,07
+
+#DrawBytes x=0 y=0
+........
+.AAAAAA.
+.A....A.
+.A.BB.A.
+.A.BB.A.
+.A....A.
+.AAAAAA.
+........
+
+#DrawLast x=7 y=7
+
+#Delay ms=1000
+
+#Restart
+
+#Repeat count=4
+#Repeat count=2
+; Other commands in here
+#Next
+#Next
+
