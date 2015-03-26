@@ -68,7 +68,7 @@ a text sequence description and produces the propeller data section for the prop
 Comments in the text file begin with ";". Commands begin with "#". Most commands have a number of data-lines that follow.
 
 ```
-\#Palette start=0
+\# Palette start=0
 00_00_00_00
 00_FF_10_FF
 ; 
