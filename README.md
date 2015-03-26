@@ -17,10 +17,10 @@ The driver allows you to map up to four plates over a larger dot-matrix image. (
 the code to support as many plates as you need).
 
 The chain-of-plates forms a "window" or "view" over the larger image. Here are several example
-views over a single image:
+views over a single image:<br>
 ![](https://github.com/topherCantrell/propNeoPixel/blob/master/Art/ExampleMap.jpg)
 
-You tell the driver the view layout in the init function. Here are two example "lines" of plates:
+You tell the driver the view layout in the init function. Here are two example "lines" of plates:<br>
 ![](https://github.com/topherCantrell/propNeoPixel/blob/master/Art/Lines.jpg)
 
 The first parameter to init is the output pin number to drive the plate (or chain of plates).
@@ -36,7 +36,7 @@ A value of (-1,-1) means the next plate is up a plate and left a plate. If there
 pass (0,0).
 
 Here is an example of a square window made from 4 plates. There are many ways to physically chain the plates 
-together:
+together:<br>
 ![](https://github.com/topherCantrell/propNeoPixel/blob/master/Art/Squares.jpg)
 
 The second example is a complex example with a crossing wiring pattern. Note the first plate has (ix,iy) of (8,8)
@@ -45,7 +45,7 @@ since the first plate is at the bottom right of the window.
 ## Multiple Chains
 
 The "MultiNeoPixelPlateAPI.spin" module allows you to combine multiple plate drivers to form a single view. This
-provides a faster refresh rate since there are two serial streams instead of one.
+provides a faster refresh rate since there are two serial streams instead of one.<br>
 ![](https://github.com/topherCantrell/propNeoPixel/blob/master/Art/Multi.jpg)
 
 ## Color Palette
