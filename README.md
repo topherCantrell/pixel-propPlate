@@ -111,6 +111,10 @@ Comments in the text file begin with ";". Commands begin with "#". Most commands
 ; to the top of the repeat loop. The "count" tells how many times to repeat the loop.
 ```
 
+Here is the first part of a generated propeller data section:<br>
+![](https://github.com/topherCantrell/propNeoPixel/blob/master/Art/PropData.jpg)
+
+
 ## The Parallax Object Exchange
 
 Here is the code on the Parallax Object Exchange:<br>
