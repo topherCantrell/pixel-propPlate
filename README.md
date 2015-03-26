@@ -67,6 +67,7 @@ a text sequence description and produces the propeller data section for the prop
 
 Comments in the text file begin with ";". Commands begin with "#". Most commands have a number of data-lines that follow.
 
+```
 \#Palette start=0
 00_00_00_00
 00_FF_10_FF
@@ -108,6 +109,7 @@ Comments in the text file begin with ";". Commands begin with "#". Most commands
 ;
 ; You can nest "repeat" commands up to 4 levels deep. The "next" command takes you back
 ; to the top of the repeat loop. The "count" tells how many times to repeat the loop.
+```
 
 ## The Parallax Object Exchange
 
