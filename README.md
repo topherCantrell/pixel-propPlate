@@ -93,7 +93,7 @@ Comments in the text file begin with ";". Commands begin with "#". Most commands
 ;
 ; Draw the window over the last image given with window offset of (x,y)
 
-\Delay ms=1000
+#Delay ms=1000
 ;
 ; Pause for 1000 ms
 
