@@ -68,16 +68,16 @@ a text sequence description and produces the propeller data section for the prop
 Comments in the text file begin with ";". Commands begin with "#". Most commands have a number of data-lines that follow.
 
 ```
-\# Palette start=0
+#Palette start=0
 00_00_00_00
 00_FF_10_FF
 ; 
 ; Fill the color palette beginning at [start] with as many colors as given
 
-\#Chars chars=.ABCDE+X values=00,01,02,03,04,05,06,07
+#Chars chars=.ABCDE+X values=00,01,02,03,04,05,06,07
 ; Define a character-to-pixel-value map for drawing images in ascii art
 
-\#DrawBytes x=0 y=0
+#DrawBytes x=0 y=0
 ........
 .AAAAAA.
 .A....A.
@@ -89,7 +89,7 @@ Comments in the text file begin with ";". Commands begin with "#". Most commands
 ;
 ; Draw the window over the given image with window offset of (x,y)
 
-\#DrawLast x=7 y=7
+#DrawLast x=7 y=7
 ;
 ; Draw the window over the last image given with window offset of (x,y)
 
@@ -97,15 +97,15 @@ Comments in the text file begin with ";". Commands begin with "#". Most commands
 ;
 ; Pause for 1000 ms
 
-\#Restart
+#Restart
 ;
 ; Restart the sequence at the start
 
-\#Repeat count=4
-\#Repeat count=2
+#Repeat count=4
+#Repeat count=2
 ; Other commands in here
-\#Next
-\#Next
+#Next
+#Next
 ;
 ; You can nest "repeat" commands up to 4 levels deep. The "next" command takes you back
 ; to the top of the repeat loop. The "count" tells how many times to repeat the loop.
