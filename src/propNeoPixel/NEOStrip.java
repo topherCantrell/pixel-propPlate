@@ -30,17 +30,22 @@ public class NEOStrip {
 	public static final int WHITE =  7;
 	
 	private OutputStream os;
-	private InputStream is;
+	InputStream is;
 	
 	// Wait for the serial response
-	private void waitThrottle(int value) throws IOException {
+	private void waitThrottle(int value) throws IOException {		
 		int w;
 		while(true) {
 			w = is.read();
 			if(w>=0) {
 				break;
 			}
-		}			
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+		}
 	}
 	
 	/**
@@ -60,6 +65,10 @@ public class NEOStrip {
 		
 		os = serialPort.getOutputStream();
 		is = serialPort.getInputStream();
+		
+		// I don't want to talk about it!
+		// Some kind of weird timing thingie going on. Need this at the beginning.
+		setPattern(0, 0,0,0,0,0);
 	}
 	
 	/**
@@ -100,7 +109,77 @@ public class NEOStrip {
 		}		
 	}
 	
-	// FILL
+	/**
+	 * Fill a line of pixels.
+	 * @param start beginning of the line (inclusive)
+	 * @param end of the line (inclusive)
+	 * @param color pixel color
+	 */
+	public void fill(int start, int end, int color) {
+		try {
+			os.write('F');
+			os.write(start);
+			os.write(end);
+			os.write(color);
+			waitThrottle('F');
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}	
+	}
 	
+	/**
+	 * Set an entry in the color palette
+	 * @param index the color slot
+	 * @param r red component
+	 * @param g green component
+	 * @param b blue component
+	 */
+	public void setPalletColor(int index, int r, int g, int b) {
+		try {
+			os.write('P');
+			os.write(index);
+			os.write(r);
+			os.write(g);
+			os.write(b);
+			waitThrottle('P');
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
+	 * Set the contents of a pattern buffer
+	 * @param index the pattern number 0 .. 15
+	 * @param pix array of pixels
+	 */
+	public void setPattern(int index, int ... pix) {
+		try {
+			os.write('I');
+			os.write(index);
+			os.write(pix.length);
+			for(int p : pix) {
+				os.write(p);
+			}
+			waitThrottle('I');
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}		
+	}
+	
+	/**
+	 * Stamp the given pattern into the buffer
+	 * @param patternIndex pattern number 0 .. 15
+	 * @param pos start pixel position in the buffer
+	 */
+	public void stampPattern(int patternIndex, int pos) {
+		try {
+			os.write('M');
+			os.write(patternIndex);
+			os.write(pos);
+			waitThrottle('M');
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 }
