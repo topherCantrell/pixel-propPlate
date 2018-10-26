@@ -6,10 +6,10 @@ I used the Adafruit 8x8 NeoPixel plates:<br>
 https://www.adafruit.com/products/1487
 
 Here is my plate connected to my propeller quick-start board:<br>
-![](https://github.com/topherCantrell/propNeoPixelPlate/blob/master/Art/Hardware.jpg)
+![](Art/Hardware.jpg)
 
 Here are the schematics from the "NeoPixelTest.spin" documentation:<br>
-![](https://github.com/topherCantrell/propNeoPixelPlate/blob/master/Art/Schematics.jpg)
+![](Art/Schematics.jpg)
 
 ## Dot Matrix Mapping
 
@@ -18,10 +18,10 @@ the code to support as many plates as you need).
 
 The chain-of-plates forms a "window" or "view" over the larger image. Here are several example
 views over a single image:<br>
-![](https://github.com/topherCantrell/propNeoPixelPlate/blob/master/Art/ExampleMap.jpg)
+![](Art/ExampleMap.jpg)
 
 You tell the driver the view layout in the init function. Here are two example "lines" of plates:<br>
-![](https://github.com/topherCantrell/propNeoPixelPlate/blob/master/Art/Lines.jpg)
+![](Art/Lines.jpg)
 
 The first parameter to init is the output pin number to drive the plate (or chain of plates).
 
@@ -37,7 +37,7 @@ pass (0,0).
 
 Here is an example of a square window made from 4 plates. There are many ways to physically chain the plates 
 together:<br>
-![](https://github.com/topherCantrell/propNeoPixelPlate/blob/master/Art/Squares.jpg)
+![](Art/Squares.jpg)
 
 The second example is a complex example with a crossing wiring pattern. Note the first plate has (ix,iy) of (8,8)
 since the first plate is at the bottom right of the window.
@@ -46,7 +46,7 @@ since the first plate is at the bottom right of the window.
 
 The "MultiNeoPixelPlateAPI.spin" module allows you to combine multiple plate drivers to form a single view. This
 provides a faster refresh rate since there are two serial streams instead of one.<br>
-![](https://github.com/topherCantrell/propNeoPixelPlate/blob/master/Art/Multi.jpg)
+![](Art/Multi.jpg)
 
 ## Color Palette
 
@@ -112,7 +112,7 @@ Comments in the text file begin with ";". Commands begin with "#". Most commands
 ```
 
 Here is the first part of a generated propeller data section:<br>
-![](https://github.com/topherCantrell/propNeoPixelPlate/blob/master/Art/PropData.jpg)
+![](Art/PropData.jpg)
 
 
 ## The Parallax Object Exchange
